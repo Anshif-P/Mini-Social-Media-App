@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mini_social_media_app/view/screen_login.dart';
+import 'package:mini_social_media_app/view/screen_parent.dart';
+import 'package:mini_social_media_app/view/screen_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ScreenLogIn(),
+      home: ScreenParentNavigation(),
     );
   }
 }
