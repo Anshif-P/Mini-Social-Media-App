@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mini_social_media_app/util/constance/text_style.dart';
 import 'package:mini_social_media_app/util/validation/form_validation.dart';
-import 'package:mini_social_media_app/view/screen_signup.dart';
+import 'package:mini_social_media_app/view/screen_login.dart';
 import 'package:mini_social_media_app/widgets/comman/buttom_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/divider_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/text_feild_widget.dart';
 
 // ignore: must_be_immutable
-class ScreenLogIn extends StatelessWidget {
+class ScreenSignUp extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController userNameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  final TextEditingController conPasswordController = TextEditingController();
+  final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   bool loadingCheck = false;
-
-  ScreenLogIn({super.key});
+  ScreenSignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class ScreenLogIn extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Form(
-            key: loginFormKey,
+            key: signUpFormKey,
             child: SingleChildScrollView(
               child: Column(
                 children: [
@@ -40,15 +41,24 @@ class ScreenLogIn extends StatelessWidget {
                     height: 20,
                   ),
                   Text(
-                    'Welcome To BuzzSpace',
+                    'Sign Up',
                     style: AppText.largeDark,
                   ),
                   const SizedBox(
                     height: 10,
                   ),
                   Text(
-                    'Sign in to Continue',
+                    'Create a new account',
                     style: AppText.smallLight,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  TextFieldWidget(
+                    controller: userNameController,
+                    hintText: 'Username',
+                    icon: Icons.person_outline_sharp,
+                    validator: (value) => Validations.emtyValidation(value),
                   ),
                   const SizedBox(
                     height: 15,
@@ -56,7 +66,7 @@ class ScreenLogIn extends StatelessWidget {
                   TextFieldWidget(
                     controller: emailController,
                     hintText: 'Email',
-                    icon: Icons.account_circle_outlined,
+                    icon: Icons.mail_outline_rounded,
                     validator: (value) => Validations.emailValidation(value),
                   ),
                   const SizedBox(
@@ -67,46 +77,37 @@ class ScreenLogIn extends StatelessWidget {
                     textVisibility: true,
                     controller: passwordController,
                     hintText: 'Password',
-                    icon: Icons.lock_open_outlined,
+                    icon: Icons.lock_open_rounded,
                     validator: (value) => Validations.emtyValidation(value),
                   ),
                   const SizedBox(
                     height: 15,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forget Password?',
-                        style: AppText.smallDark,
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Checkbox(
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          value: false,
-                          onChanged: (value) {}),
-                      Text(
-                        'Remeber me and keep me logged in',
-                        style: AppText.smallGrey,
-                      )
-                    ],
+                  TextFieldWidget(
+                    isObscure: true,
+                    textVisibility: true,
+                    controller: conPasswordController,
+                    hintText: 'Confirm Password',
+                    icon: Icons.lock_open_rounded,
+                    validator: (value) => Validations.conformPasswordValidation(
+                        value, passwordController.text),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 15,
+                  ),
+                  const SizedBox(
+                    height: 40,
                   ),
                   ButtonWidget(
                     colorCheck: true,
-                    onpressFunction: () => logInFnc(
-                        context, emailController.text, passwordController.text),
-                    text: 'Log in',
+                    onpressFunction: () => signUpFnc(
+                        context,
+                        emailController.text,
+                        userNameController.text,
+                        passwordController.text),
+                    text: 'Sing Up',
+                    borderCheck: false,
+                    loadingCheck: loadingCheck,
                   ),
                   const SizedBox(
                     height: 20,
@@ -120,8 +121,8 @@ class ScreenLogIn extends StatelessWidget {
                     colorCheck: false,
                     onpressFunction: () => Navigator.of(context)
                         .pushReplacement(MaterialPageRoute(
-                            builder: (context) => ScreenSignUp())),
-                    text: 'Sing Up',
+                            builder: (context) => ScreenLogIn())),
+                    text: 'Sing in',
                     borderCheck: true,
                   ),
                 ],
@@ -133,5 +134,6 @@ class ScreenLogIn extends StatelessWidget {
     );
   }
 
-  logInFnc(BuildContext context, String mail, String password) async {}
+  signUpFnc(
+      BuildContext context, String mail, String name, String password) async {}
 }
