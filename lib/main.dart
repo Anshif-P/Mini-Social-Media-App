@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mini_social_media_app/view/screen_login.dart';
-import 'package:mini_social_media_app/view/screen_parent.dart';
-import 'package:mini_social_media_app/view/screen_profile.dart';
+import 'package:mini_social_media_app/network/shared_preferences/shared_pref_model.dart';
 
-void main() {
+import 'package:mini_social_media_app/view/screen_splash.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefModel.instance.initSharedPref();
   runApp(const MyApp());
 }
 
@@ -12,9 +14,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ScreenParentNavigation(),
+      home: ScreenSplash(),
     );
   }
 }

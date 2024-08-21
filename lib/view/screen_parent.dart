@@ -1,18 +1,34 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mini_social_media_app/view/screen_add_post.dart';
 import 'package:mini_social_media_app/view/screen_profile.dart';
 import '../util/constance/colors.dart';
 import 'screen_home.dart';
 
+// ignore: must_be_immutable
 class ScreenParentNavigation extends StatelessWidget {
-  ScreenParentNavigation({super.key});
+  ScreenParentNavigation({super.key, required this.userData});
+  Map<String, dynamic> userData;
 
   final pageNotifier = ValueNotifier(0);
 
-  final List<Widget> _screens = [const ScreenHome(), ScreenProfile()];
+  final List<Widget> _screens = [const ScreenHome(), const ScreenProfile()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Container(
+        alignment: Alignment.bottomCenter,
+        child: FloatingActionButton(
+          backgroundColor: Colors.white,
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ScreenPost(),
+          )),
+          child: const Icon(
+            Icons.add,
+            color: Colors.black,
+          ),
+        ),
+      ),
       body: ValueListenableBuilder(
           valueListenable: pageNotifier,
           builder: (context, value, _) => _screens[pageNotifier.value]),

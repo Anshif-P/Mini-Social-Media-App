@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mini_social_media_app/model/post_model.dart';
 import 'package:mini_social_media_app/util/constance/text_style.dart';
@@ -39,7 +41,9 @@ class ProductGridViewWidget extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: AssetImage(data.image),
+                              image: index > 9
+                                  ? FileImage(File(data.image))
+                                  : AssetImage(data.image),
                               fit: BoxFit.cover)),
                     ),
                   ),

@@ -1,10 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:mini_social_media_app/network/local_data_base/local_database.dart';
+import 'package:mini_social_media_app/network/shared_preferences/shared_pref_model.dart';
 import 'package:mini_social_media_app/util/constance/text_style.dart';
+import 'package:mini_social_media_app/util/snack_bar/snack_bar.dart';
 import 'package:mini_social_media_app/util/validation/form_validation.dart';
 import 'package:mini_social_media_app/view/screen_login.dart';
+import 'package:mini_social_media_app/view/screen_parent.dart';
 import 'package:mini_social_media_app/widgets/comman/buttom_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/divider_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/text_feild_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // ignore: must_be_immutable
 class ScreenSignUp extends StatelessWidget {
@@ -134,6 +141,48 @@ class ScreenSignUp extends StatelessWidget {
     );
   }
 
-  signUpFnc(
-      BuildContext context, String mail, String name, String password) async {}
+  Future<void> signUpFnc(
+      BuildContext context, String email, String name, String password) async {
+    loadingCheck = true;
+
+    var status = await Permission.storage.status;
+
+    if (status.isDenied) {
+      status = await Permission.storage.request();
+    }
+
+    if (status.isGranted) {
+      if (signUpFormKey.currentState?.validate() ?? false) {
+        DatabaseHelper dbHelper = DatabaseHelper();
+        int? result = await dbHelper.registerUser(name, email, password, null);
+
+        if (result != null) {
+          SharedPrefModel.instance.insertData('userId', result);
+
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => ScreenParentNavigation(
+                    userData: {
+                      'id': result,
+                      'username': name,
+                      'email': email,
+                      'password': password,
+                      'profileImage': '',
+                    },
+                  )));
+        } else {
+          CustomSnackBar.showSnackBar(
+              context, 'User already exists or registration failed');
+        }
+      }
+    } else if (status.isPermanentlyDenied) {
+      CustomSnackBar.showSnackBar(context,
+          'Storage permission is required. Please enable it in settings.');
+      openAppSettings();
+    } else {
+      CustomSnackBar.showSnackBar(
+          context, 'Storage permission is required to continue');
+    }
+
+    loadingCheck = false;
+  }
 }

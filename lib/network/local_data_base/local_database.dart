@@ -34,27 +34,7 @@ class DatabaseHelper {
         profileImage TEXT
       )
     ''');
-
-    await db.execute('''
-      CREATE TABLE likes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER,
-        productId INTEGER NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users (id)
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE saved_images (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER,
-        productId INTEGER NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users (id)
-      )
-    ''');
   }
-
-  // User Authentication Methods
 
   Future<int?> registerUser(String username, String email, String password,
       String? profileImage) async {
@@ -81,58 +61,37 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first : null;
   }
 
-  Future<int> updateUserProfileImage(int userId, String profileImage) async {
+  Future<void> updateProfileImage(String email, String imagePath) async {
     final db = await database;
-    return await db.update(
+    await db.update(
       'users',
-      {'profileImage': profileImage},
-      where: 'id = ?',
-      whereArgs: [userId],
+      {'profileImage': imagePath},
+      where: 'email = ?',
+      whereArgs: [email],
     );
   }
 
-  // Like Image Method
-
-  Future<int> likeProduct(int userId, int productId) async {
+  Future<String?> getProfileImage(String email) async {
     final db = await database;
-    return await db.insert('likes', {'userId': userId, 'productId': productId});
+    var result = await db.query(
+      'users',
+      columns: ['profileImage'],
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+    if (result.isNotEmpty) {
+      return result.first['profileImage'] as String?;
+    }
+    return null;
   }
 
-  Future<List<int>> getUserLikedProductIds(int userId) async {
+  Future<Map<String, dynamic>?> getUserById(int id) async {
     final db = await database;
-    var result = await db.query('likes',
-        where: 'userId = ?', whereArgs: [userId], columns: ['productId']);
-    return result.map((row) => row['productId'] as int).toList();
-  }
-
-  // Save Image Method
-
-  Future<int> saveProduct(int userId, int productId) async {
-    final db = await database;
-    return await db
-        .insert('saved_images', {'userId': userId, 'productId': productId});
-  }
-
-  Future<List<int>> getUserSavedProductIds(int userId) async {
-    final db = await database;
-    var result = await db.query('saved_images',
-        where: 'userId = ?', whereArgs: [userId], columns: ['productId']);
-    return result.map((row) => row['productId'] as int).toList();
-  }
-
-  // Check if product is liked or saved
-
-  Future<bool> isProductLiked(int userId, int productId) async {
-    final db = await database;
-    var result = await db.query('likes',
-        where: 'userId = ? AND productId = ?', whereArgs: [userId, productId]);
-    return result.isNotEmpty;
-  }
-
-  Future<bool> isProductSaved(int userId, int productId) async {
-    final db = await database;
-    var result = await db.query('saved_images',
-        where: 'userId = ? AND productId = ?', whereArgs: [userId, productId]);
-    return result.isNotEmpty;
+    var result = await db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return result.isNotEmpty ? result.first : null;
   }
 }
