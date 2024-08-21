@@ -7,6 +7,7 @@ import 'package:mini_social_media_app/view/screen_parent.dart';
 import 'package:mini_social_media_app/widgets/comman/buttom_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/list_.dart';
 import 'package:mini_social_media_app/widgets/comman/text_feild_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ScreenPost extends StatefulWidget {
   @override
@@ -21,9 +22,23 @@ class _ScreenPostState extends State<ScreenPost> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      _imageFile.value = File(pickedFile.path);
+    var status = await Permission.storage.status;
+
+    if (status.isDenied) {
+      status = await Permission.storage.request();
+    }
+    if (status.isGranted) {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        _imageFile.value = File(pickedFile.path);
+      }
+    } else if (status.isPermanentlyDenied) {
+      CustomSnackBar.showSnackBar(context,
+          'Storage permission is required. Please enable it in settings.');
+      openAppSettings();
+    } else {
+      CustomSnackBar.showSnackBar(
+          context, 'Storage permission is required to continue');
     }
   }
 

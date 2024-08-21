@@ -85,7 +85,7 @@ class ScreenSignUp extends StatelessWidget {
                     controller: passwordController,
                     hintText: 'Password',
                     icon: Icons.lock_open_rounded,
-                    validator: (value) => Validations.emtyValidation(value),
+                    validator: (value) => Validations.isPassword(value),
                   ),
                   const SizedBox(
                     height: 15,
@@ -144,43 +144,27 @@ class ScreenSignUp extends StatelessWidget {
   Future<void> signUpFnc(
       BuildContext context, String email, String name, String password) async {
     loadingCheck = true;
+    if (signUpFormKey.currentState?.validate() ?? false) {
+      DatabaseHelper dbHelper = DatabaseHelper();
+      int? result = await dbHelper.registerUser(name, email, password, null);
 
-    var status = await Permission.storage.status;
+      if (result != null) {
+        SharedPrefModel.instance.insertData('userId', result);
 
-    if (status.isDenied) {
-      status = await Permission.storage.request();
-    }
-
-    if (status.isGranted) {
-      if (signUpFormKey.currentState?.validate() ?? false) {
-        DatabaseHelper dbHelper = DatabaseHelper();
-        int? result = await dbHelper.registerUser(name, email, password, null);
-
-        if (result != null) {
-          SharedPrefModel.instance.insertData('userId', result);
-
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ScreenParentNavigation(
-                    userData: {
-                      'id': result,
-                      'username': name,
-                      'email': email,
-                      'password': password,
-                      'profileImage': '',
-                    },
-                  )));
-        } else {
-          CustomSnackBar.showSnackBar(
-              context, 'User already exists or registration failed');
-        }
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => ScreenParentNavigation(
+                  userData: {
+                    'id': result,
+                    'username': name,
+                    'email': email,
+                    'password': password,
+                    'profileImage': '',
+                  },
+                )));
+      } else {
+        CustomSnackBar.showSnackBar(
+            context, 'User already exists or registration failed');
       }
-    } else if (status.isPermanentlyDenied) {
-      CustomSnackBar.showSnackBar(context,
-          'Storage permission is required. Please enable it in settings.');
-      openAppSettings();
-    } else {
-      CustomSnackBar.showSnackBar(
-          context, 'Storage permission is required to continue');
     }
 
     loadingCheck = false;

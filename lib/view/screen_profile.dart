@@ -10,6 +10,7 @@ import 'package:mini_social_media_app/util/validation/form_validation.dart';
 import 'package:mini_social_media_app/widgets/comman/buttom_widget.dart';
 import 'package:mini_social_media_app/widgets/comman/show_dialog.dart';
 import 'package:mini_social_media_app/widgets/comman/text_feild_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ScreenProfile extends StatefulWidget {
   const ScreenProfile({super.key});
@@ -144,18 +145,33 @@ class _ScreenProfileState extends State<ScreenProfile> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _profileImageNotifier.value = File(pickedFile.path);
-      });
+    var status = await Permission.storage.status;
 
-      final email = emailController.text;
-      if (email.isNotEmpty) {
-        await DatabaseHelper().updateProfileImage(email, pickedFile.path);
-        // ignore: use_build_context_synchronously
-        CustomSnackBar.showSnackBar(context, 'Photo Updated');
+    if (status.isDenied) {
+      status = await Permission.storage.request();
+    }
+
+    if (status.isGranted) {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _profileImageNotifier.value = File(pickedFile.path);
+        });
+
+        final email = emailController.text;
+        if (email.isNotEmpty) {
+          await DatabaseHelper().updateProfileImage(email, pickedFile.path);
+          // ignore: use_build_context_synchronously
+          CustomSnackBar.showSnackBar(context, 'Photo Updated');
+        }
       }
+    } else if (status.isPermanentlyDenied) {
+      CustomSnackBar.showSnackBar(context,
+          'Storage permission is required. Please enable it in settings.');
+      openAppSettings();
+    } else {
+      CustomSnackBar.showSnackBar(
+          context, 'Storage permission is required to continue');
     }
   }
 }

@@ -73,7 +73,7 @@ class ScreenLogIn extends StatelessWidget {
                     controller: passwordController,
                     hintText: 'Password',
                     icon: Icons.lock_open_outlined,
-                    validator: (value) => Validations.emtyValidation(value),
+                    validator: (value) => Validations.isPassword(value),
                   ),
                   const SizedBox(
                     height: 15,
